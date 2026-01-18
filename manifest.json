@@ -1,5 +1,5 @@
 {
-  "name": "BernTicker - Buchungsnummer Extraktor",
+  "name": "Bernticket",
   "short_name": "BernTicker",
   "description": "Extrahiere Buchungsnummern aus Excel-Dateien - vollständig offline und datenschutzkonform",
   "start_url": "/",
