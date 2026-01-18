@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Transformiere Hotel-Export-Daten - vollständig offline und datenschutzkonform">
+    <title>BernTicker - Hotel-Export Transformer</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="theme-color" content="#dc2626">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-text">BERN</span>
+                <div class="swiss-flag">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="#dc2626"/>
+                        <line x1="50" y1="20" x2="50" y2="80" stroke="white" stroke-width="20" stroke-linecap="round"/>
+                        <line x1="20" y1="50" x2="80" y2="50" stroke="white" stroke-width="20" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-area" id="uploadArea">
+                    <h2>Excel-Datei</h2>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" hidden>
+                    <button type="button" class="btn btn-primary" id="selectFileBtn">WEITER</button>
+                </div>
+            </div>
+
+            <div class="processing-section hidden" id="processingSection">
+                <div class="status-card">
+                    <div class="status-icon" id="statusIcon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 id="statusTitle">Datei wird verarbeitet...</h3>
+                    <p id="statusMessage">Bitte warten Sie einen Moment.</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-section hidden" id="resultSection">
+                <div class="result-card">
+                    <div class="result-header">
+                        <svg class="success-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3>Verarbeitung erfolgreich</h3>
+                    </div>
+                    <div class="result-info">
+                        <p><strong>Gefundene Einträge:</strong> <span id="entryCount">0</span></p>
+                        <p><strong>Dateiname:</strong> <span id="fileName">-</span></p>
+                    </div>
+                    <div class="preview-section">
+                        <h4>Vorschau</h4>
+                        <div class="table-container">
+                            <table class="preview-table" id="previewTable">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>BookingNumber</th>
+                                        <th>OTANumber</th>
+                                        <th>Name</th>
+                                        <th>Adults</th>
+                                        <th>Teens</th>
+                                        <th>Children</th>
+                                        <th>Babys</th>
+                                        <th>DateFrom</th>
+                                        <th>DateTo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="previewTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="result-actions">
+                        <button type="button" class="btn btn-primary" id="downloadBtn">CSV HERUNTERLADEN</button>
+                        <button type="button" class="btn btn-secondary" id="resetBtn">NEUE DATEI</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="error-section hidden" id="errorSection">
+                <div class="error-card">
+                    <div class="error-header">
+                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3>Fehler</h3>
+                    </div>
+                    <p id="errorMessage"></p>
+                    <button type="button" class="btn btn-primary" id="errorResetBtn">ERNEUT VERSUCHEN</button>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- SheetJS Library für Excel-Parsing -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    
+    <!-- Application Modules -->
+    <script src="excelParser.js"></script>
+    <script src="csvExporter.js"></script>
+    <script src="app.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('Service Worker registriert'))
+                    .catch(err => console.log('Service Worker Fehler:', err));
+            });
+        }
+    </script>
+</body>
+</html>
+
