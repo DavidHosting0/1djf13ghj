@@ -79,12 +79,12 @@ class CSVExporter {
         const link = document.createElement('a');
         link.href = url;
         
-        // Dateiname: Anreise_heutigesDatum (z.B. Anreise_20260118)
+        // Dateiname: Anreise_DD.MM.YYYY (z.B. Anreise_19.01.2026)
         const today = new Date();
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
-        const dateString = `${year}${month}${day}`;
+        const dateString = `${day}.${month}.${year}`;
         link.download = `Anreise_${dateString}.csv`;
         
         // Link temporär zum DOM hinzufügen, klicken und entfernen
