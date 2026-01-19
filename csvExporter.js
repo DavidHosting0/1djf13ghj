@@ -78,7 +78,14 @@ class CSVExporter {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `${fileName}_${this.getTimestamp()}.csv`;
+        
+        // Dateiname: Anreise_heutigesDatum (z.B. Anreise_20260118)
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const dateString = `${year}${month}${day}`;
+        link.download = `Anreise_${dateString}.csv`;
         
         // Link temporär zum DOM hinzufügen, klicken und entfernen
         document.body.appendChild(link);
