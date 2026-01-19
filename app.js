@@ -229,11 +229,8 @@ class App {
         try {
             const csvContent = this.csvExporter.createCSV(this.currentData.rows);
             
-            const baseFileName = this.currentData.fileName
-                .replace(/\.(xlsx|xls)$/i, '')
-                .replace(/[^a-z0-9]/gi, '_');
-            
-            this.csvExporter.downloadCSV(csvContent, baseFileName);
+            // Dateiname wird automatisch als "Anreise_heutigesDatum" generiert
+            this.csvExporter.downloadCSV(csvContent);
         } catch (error) {
             console.error('Fehler beim CSV-Export:', error);
             this.showError('Fehler beim Erstellen der CSV-Datei. Bitte versuchen Sie es erneut.');
