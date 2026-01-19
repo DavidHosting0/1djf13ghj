@@ -9,7 +9,7 @@ class ExcelParser {
         // Unterstützt mehrere mögliche Spaltennamen (erster gefundener wird verwendet)
         this.columnMapping = {
             'BookingNumber': {
-                possibleNames: ['Reservation Number', 'Reservation Num.'],
+                possibleNames: ['Reservation Number', 'Reservation Num'],
                 type: 'string'
             },
             'OTANumber': {
@@ -282,7 +282,7 @@ class ExcelParser {
     }
 
     /**
-     * Formatiert ein Datum als String (YYYY-MM-DD)
+     * Formatiert ein Datum als String (DD.MM.YYYY)
      * @param {Date} date - JavaScript-Datum
      * @returns {string} - Formatierter Datumsstring
      */
@@ -293,7 +293,7 @@ class ExcelParser {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+        return `${day}.${month}.${year}`;
     }
 
     /**
@@ -306,7 +306,7 @@ class ExcelParser {
      */
     transformRow(row, columnIndices, id, rowIndex) {
         const transformed = {
-            Id: id,
+            Id: '', // Wird später auf BookingNumber gesetzt
             BookingNumber: '',
             OTANumber: '',
             Name: '',
@@ -344,8 +344,20 @@ class ExcelParser {
                     
                     if (cell) {
                         if (cell.w) {
-                            // Verwende das formatierte Datum aus Excel (beste Option)
-                            dateValue = cell.w;
+                            // Verwende das formatierte Datum aus Excel, aber prüfe ob es konvertiert werden muss
+                            // Wenn cell.w bereits ein Datum im richtigen Format ist, verwende es
+                            // Sonst konvertiere cell.v falls vorhanden
+                            const wValue = String(cell.w).trim();
+                            // Prüfe ob es bereits im DD.MM.YYYY Format ist
+                            if (/^\d{2}\.\d{2}\.\d{4}$/.test(wValue)) {
+                                dateValue = wValue;
+                            } else if (cell.v !== undefined && cell.v !== null && typeof cell.v === 'number' && cell.v > 1 && cell.v < 1000000) {
+                                // Konvertiere die Seriennummer zu DD.MM.YYYY
+                                const date = this.excelDateToJSDate(cell.v);
+                                dateValue = this.formatDate(date);
+                            } else {
+                                dateValue = wValue;
+                            }
                         } else if (cell.v !== undefined && cell.v !== null) {
                             // Wenn cell.v eine Zahl im Excel-Datumsbereich ist, konvertiere sie
                             if (typeof cell.v === 'number' && cell.v > 1 && cell.v < 1000000) {
@@ -390,6 +402,9 @@ class ExcelParser {
                 transformed[csvFieldName] = cellValue;
             }
         }
+
+        // ID gleich BookingNumber setzen
+        transformed.Id = transformed.BookingNumber || '';
 
         return transformed;
     }
