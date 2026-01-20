@@ -9,7 +9,7 @@ class ExcelParser {
         // Unterstützt mehrere mögliche Spaltennamen (erster gefundener wird verwendet)
         this.columnMapping = {
             'BookingNumber': {
-                possibleNames: ['Reservation Number', 'Reservation Num.'],
+                possibleNames: ['Reservation Number', 'Reservation Num'],
                 type: 'string'
             },
             'OTANumber': {
@@ -392,6 +392,16 @@ class ExcelParser {
             
             // Standard-Verarbeitung für alle anderen Felder
             let cellValue = this.getCellValue(row, columnIndex, rowIndex, csvFieldName);
+
+            // Spezielle Behandlung für BookingNumber: führende Nullen entfernen (insbesondere die erste 0)
+            if (csvFieldName === 'BookingNumber') {
+                if (typeof cellValue === 'string') {
+                    // Nur eine führende 0 entfernen
+                    if (cellValue.startsWith('0')) {
+                        cellValue = cellValue.substring(1);
+                    }
+                }
+            }
             
             // Spezielle Behandlung für numerische Felder
             if (config.type === 'number') {
@@ -429,4 +439,3 @@ class ExcelParser {
         return hasValidType || hasValidExtension;
     }
 }
-
