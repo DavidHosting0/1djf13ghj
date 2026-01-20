@@ -9,7 +9,7 @@ class ExcelParser {
         // Unterstützt mehrere mögliche Spaltennamen (erster gefundener wird verwendet)
         this.columnMapping = {
             'BookingNumber': {
-                possibleNames: ['Reservation Number', 'Reservation Num'],
+                possibleNames: ['Reservation Number', 'Reservation Num.'],
                 type: 'string'
             },
             'OTANumber': {
@@ -439,3 +439,4 @@ class ExcelParser {
         return hasValidType || hasValidExtension;
     }
 }
+
