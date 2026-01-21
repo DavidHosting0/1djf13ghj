@@ -1,6 +1,6 @@
 /**
- * Excel Export Module
- * Verantwortlich für die Generierung und den Download von Excel-Dateien mit Formatierung
+ * CSV Export Module
+ * Verantwortlich für die Generierung und den Download von CSV-Dateien
  */
 
 class CSVExporter {
@@ -25,107 +25,7 @@ class CSVExporter {
     }
 
     /**
-     * Erstellt eine Excel-Datei aus den transformierten Zeilen
-     * @param {Array<Object>} rows - Array von transformierten Zeilenobjekten
-     * @returns {ArrayBuffer} - Excel-Datei als ArrayBuffer
-     */
-    createExcel(rows) {
-        if (!Array.isArray(rows) || rows.length === 0) {
-            throw new Error('Keine Daten zum Exportieren verfügbar.');
-        }
-
-        // Neues Workbook erstellen
-        const wb = XLSX.utils.book_new();
-        
-        // Daten für das Worksheet vorbereiten
-        const worksheetData = [
-            this.csvColumns, // Kopfzeile
-            ...rows.map(row => {
-                return this.csvColumns.map(column => {
-                    return row[column] !== undefined && row[column] !== null ? row[column] : '';
-                });
-            })
-        ];
-        
-        // Worksheet erstellen
-        const ws = XLSX.utils.aoa_to_sheet(worksheetData);
-        
-        // Spaltenbreiten setzen
-        const colWidths = [
-            { wch: 15 }, // Id
-            { wch: 15 }, // BookingNumber
-            { wch: 15 }, // OTANumber
-            { wch: 25 }, // Name
-            { wch: 12 }, // NumberOfAdults
-            { wch: 12 }, // NumberOfTeens
-            { wch: 12 }, // NumberOfChildren
-            { wch: 12 }, // NumberOfBabys
-            { wch: 12 }, // DateFrom
-            { wch: 12 }  // DateTo
-        ];
-        ws['!cols'] = colWidths;
-        
-        // Zellformatierung: Id, BookingNumber und OTANumber zentrieren
-        const centerAlignment = { alignment: { horizontal: 'center', vertical: 'center' } };
-        
-        // Bereich für alle Zellen bestimmen
-        const range = XLSX.utils.decode_range(ws['!ref']);
-        
-        // Erste drei Spalten (Id, BookingNumber, OTANumber) zentrieren
-        for (let row = 0; row <= range.e.r; row++) {
-            for (let col = 0; col <= 2; col++) { // Spalten A, B, C (0, 1, 2)
-                const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
-                if (!ws[cellAddress]) {
-                    ws[cellAddress] = { t: 's', v: '' };
-                }
-                ws[cellAddress].s = {
-                    alignment: { horizontal: 'center', vertical: 'center' }
-                };
-            }
-        }
-        
-        // Worksheet zum Workbook hinzufügen
-        XLSX.utils.book_append_sheet(wb, ws, 'Daten');
-        
-        // Excel-Datei als ArrayBuffer erstellen
-        return XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
-    }
-
-    /**
-     * Konvertiert eine Excel-Datei zu CSV
-     * @param {ArrayBuffer} excelData - Die Excel-Datei als ArrayBuffer
-     * @returns {string} - CSV-String
-     */
-    excelToCSV(excelData) {
-        // Excel-Datei lesen
-        const wb = XLSX.read(excelData, { type: 'array' });
-        
-        // Erste Tabelle verwenden
-        const firstSheetName = wb.SheetNames[0];
-        const ws = wb.Sheets[firstSheetName];
-        
-        // Als CSV konvertieren (Formatierung geht verloren, aber Daten bleiben)
-        return XLSX.utils.sheet_to_csv(ws, { 
-            FS: this.delimiter,
-            RS: '\r\n'
-        });
-    }
-
-    /**
-     * Startet den Download einer CSV-Datei
-     * Erstellt zuerst eine Excel-Datei mit Formatierung, konvertiert sie dann zu CSV
-     * @param {ArrayBuffer} excelData - Die Excel-Datei als ArrayBuffer
-     */
-    downloadCSV(excelData) {
-        // Excel-Datei zu CSV konvertieren
-        const csvContent = this.excelToCSV(excelData);
-        
-        // CSV-Datei herunterladen
-        this.downloadCSVDirect(csvContent);
-    }
-
-    /**
-     * Erstellt eine CSV-Datei direkt (ohne Formatierung)
+     * Erstellt eine CSV-Datei aus den transformierten Zeilen
      * @param {Array<Object>} rows - Array von transformierten Zeilenobjekten
      * @returns {string} - CSV-String
      */
@@ -162,10 +62,11 @@ class CSVExporter {
     }
 
     /**
-     * Startet den Download einer CSV-Datei direkt
+     * Startet den Download einer CSV-Datei
      * @param {string} csvContent - Der CSV-String
+     * @param {string} fileName - Der gewünschte Dateiname (ohne Extension)
      */
-    downloadCSVDirect(csvContent) {
+    downloadCSV(csvContent, fileName = 'export') {
         // BOM für UTF-8 hinzufügen (für korrekte Anzeige in Excel)
         const BOM = '\uFEFF';
         const csvWithBOM = BOM + csvContent;
