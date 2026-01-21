@@ -439,4 +439,3 @@ class ExcelParser {
         return hasValidType || hasValidExtension;
     }
 }
-
